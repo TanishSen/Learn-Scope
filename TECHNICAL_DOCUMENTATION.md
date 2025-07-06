@@ -1,6 +1,7 @@
 # LearnScope - Technical Documentation
 
 ## Table of Contents
+
 1. [Project Overview](#project-overview)
 2. [Technology Stack](#technology-stack)
 3. [Project Structure](#project-structure)
@@ -18,6 +19,7 @@
 LearnScope is a peer-to-peer learning platform built with modern web technologies. It allows college students to ask questions, receive answers from peers, and participate in live help sessions. The application features a complete authentication system, real-time Q&A community, user profiles, and the foundation for video calling capabilities.
 
 ### Key Features
+
 - **User Authentication**: Secure login/registration with session management
 - **Community Q&A**: Post questions, provide answers, categorize by subjects
 - **Live Help Sessions**: Request and provide real-time help (video calling foundation ready)
@@ -28,6 +30,7 @@ LearnScope is a peer-to-peer learning platform built with modern web technologie
 ## Technology Stack
 
 ### Backend
+
 - **Node.js**: JavaScript runtime environment
 - **Express.js**: Web application framework
 - **TypeScript**: Type-safe JavaScript development
@@ -38,6 +41,7 @@ LearnScope is a peer-to-peer learning platform built with modern web technologie
 - **Zod**: Schema validation library
 
 ### Frontend
+
 - **React 18**: UI library with hooks and modern patterns
 - **TypeScript**: Type safety throughout the frontend
 - **Vite**: Fast build tool and development server
@@ -49,6 +53,7 @@ LearnScope is a peer-to-peer learning platform built with modern web technologie
 - **Lucide React**: Icon library
 
 ### Development Tools
+
 - **ESLint**: Code linting
 - **Prettier**: Code formatting
 - **Drizzle Kit**: Database migrations
@@ -105,6 +110,7 @@ learnscope/
 ## Installation & Setup
 
 ### Prerequisites
+
 - **Node.js** (version 18 or higher)
 - **npm** or **yarn** package manager
 - **PostgreSQL** (optional - app can run with in-memory storage)
@@ -161,6 +167,7 @@ The application will be available at `http://localhost:5000`
 The application uses the following database tables:
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -179,6 +186,7 @@ CREATE TABLE users (
 ```
 
 ### Subjects Table
+
 ```sql
 CREATE TABLE subjects (
     id SERIAL PRIMARY KEY,
@@ -191,6 +199,7 @@ CREATE TABLE subjects (
 ```
 
 ### Questions Table
+
 ```sql
 CREATE TABLE questions (
     id SERIAL PRIMARY KEY,
@@ -208,6 +217,7 @@ CREATE TABLE questions (
 ```
 
 ### Answers Table
+
 ```sql
 CREATE TABLE answers (
     id SERIAL PRIMARY KEY,
@@ -222,6 +232,7 @@ CREATE TABLE answers (
 ```
 
 ### Live Help Sessions Table
+
 ```sql
 CREATE TABLE live_help_sessions (
     id SERIAL PRIMARY KEY,
@@ -258,17 +269,19 @@ const loginMutation = useMutation({
   mutationFn: async (credentials: LoginInput) => {
     const res = await apiRequest("POST", "/api/login", credentials);
     return await res.json();
-  }
+  },
 });
 
 // 2. Server validates credentials
-passport.use(new LocalStrategy(async (username, password, done) => {
-  const user = await storage.getUserByUsername(username);
-  if (!user || !(await comparePasswords(password, user.password))) {
-    return done(null, false);
-  }
-  return done(null, user);
-}));
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    const user = await storage.getUserByUsername(username);
+    if (!user || !(await comparePasswords(password, user.password))) {
+      return done(null, false);
+    }
+    return done(null, user);
+  })
+);
 
 // 3. Session is created and user is logged in
 req.login(user, (err) => {
@@ -281,7 +294,7 @@ req.login(user, (err) => {
 
 ```typescript
 // Server-side protection
-app.get('/api/protected-route', requireAuth, (req, res) => {
+app.get("/api/protected-route", requireAuth, (req, res) => {
   // req.user contains the authenticated user
   res.json({ user: req.user });
 });
@@ -289,10 +302,10 @@ app.get('/api/protected-route', requireAuth, (req, res) => {
 // Frontend route protection
 function ProtectedRoute({ children }: { children: ReactNode }) {
   const { user, isLoading } = useAuth();
-  
+
   if (isLoading) return <Loading />;
   if (!user) return <Navigate to="/auth" />;
-  
+
   return <>{children}</>;
 }
 ```
@@ -302,18 +315,18 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
 ### Authentication Endpoints
 
 ```typescript
-POST /api/register
+POST / api / register;
 // Body: { username, email, firstName, lastName, password, confirmPassword }
 // Response: User object
 
-POST /api/login
+POST / api / login;
 // Body: { username, password }
 // Response: User object
 
-POST /api/logout
+POST / api / logout;
 // Response: 200 OK
 
-GET /api/user
+GET / api / user;
 // Response: Current user object or 401
 ```
 
@@ -367,13 +380,13 @@ PUT /api/live-help/:id
 The `useAuth` hook provides authentication state throughout the app:
 
 ```typescript
-const { 
-  user,           // Current user object or null
-  isLoading,      // Loading state
+const {
+  user, // Current user object or null
+  isLoading, // Loading state
   isAuthenticated, // Boolean authentication status
-  loginMutation,   // Login mutation
+  loginMutation, // Login mutation
   registerMutation, // Register mutation
-  logoutMutation   // Logout mutation
+  logoutMutation, // Logout mutation
 } = useAuth();
 ```
 
@@ -404,7 +417,7 @@ Data is fetched using TanStack Query:
 ```typescript
 const { data: questions, isLoading } = useQuery({
   queryKey: ["/api/questions"],
-  queryFn: () => fetch("/api/questions").then(res => res.json()),
+  queryFn: () => fetch("/api/questions").then((res) => res.json()),
 });
 ```
 
@@ -425,33 +438,33 @@ Add WebSocket support to the server:
 
 ```typescript
 // server/routes.ts
-import { WebSocketServer } from 'ws';
+import { WebSocketServer } from "ws";
 
 export function registerRoutes(app: Express): Server {
   const httpServer = createServer(app);
-  
+
   // Add WebSocket server
-  const wss = new WebSocketServer({ 
-    server: httpServer, 
-    path: '/ws' 
+  const wss = new WebSocketServer({
+    server: httpServer,
+    path: "/ws",
   });
-  
-  wss.on('connection', (ws) => {
-    ws.on('message', (message) => {
+
+  wss.on("connection", (ws) => {
+    ws.on("message", (message) => {
       const data = JSON.parse(message.toString());
-      
+
       // Handle signaling for WebRTC
       switch (data.type) {
-        case 'offer':
-        case 'answer':
-        case 'ice-candidate':
+        case "offer":
+        case "answer":
+        case "ice-candidate":
           // Forward to specific user
           broadcastToUser(data.targetUserId, data);
           break;
       }
     });
   });
-  
+
   return httpServer;
 }
 ```
@@ -460,8 +473,8 @@ Create WebRTC component:
 
 ```typescript
 // client/src/components/VideoCall.tsx
-import { useEffect, useRef, useState } from 'react';
-import SimplePeer from 'simple-peer';
+import { useEffect, useRef, useState } from "react";
+import SimplePeer from "simple-peer";
 
 interface VideoCallProps {
   sessionId: string;
@@ -469,7 +482,11 @@ interface VideoCallProps {
   onEndCall: () => void;
 }
 
-export function VideoCall({ sessionId, isInitiator, onEndCall }: VideoCallProps) {
+export function VideoCall({
+  sessionId,
+  isInitiator,
+  onEndCall,
+}: VideoCallProps) {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const [peer, setPeer] = useState<SimplePeer.Instance | null>(null);
@@ -477,43 +494,47 @@ export function VideoCall({ sessionId, isInitiator, onEndCall }: VideoCallProps)
 
   useEffect(() => {
     // Get user media
-    navigator.mediaDevices.getUserMedia({ 
-      video: true, 
-      audio: true 
-    }).then((stream) => {
-      setLocalStream(stream);
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
-      }
-
-      // Create peer connection
-      const p = new SimplePeer({
-        initiator: isInitiator,
-        trickle: false,
-        stream: stream,
-      });
-
-      p.on('signal', (data) => {
-        // Send signaling data through WebSocket
-        ws.send(JSON.stringify({
-          type: 'signal',
-          sessionId,
-          signal: data,
-        }));
-      });
-
-      p.on('stream', (remoteStream) => {
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = remoteStream;
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true,
+      })
+      .then((stream) => {
+        setLocalStream(stream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
         }
-      });
 
-      setPeer(p);
-    });
+        // Create peer connection
+        const p = new SimplePeer({
+          initiator: isInitiator,
+          trickle: false,
+          stream: stream,
+        });
+
+        p.on("signal", (data) => {
+          // Send signaling data through WebSocket
+          ws.send(
+            JSON.stringify({
+              type: "signal",
+              sessionId,
+              signal: data,
+            })
+          );
+        });
+
+        p.on("stream", (remoteStream) => {
+          if (remoteVideoRef.current) {
+            remoteVideoRef.current.srcObject = remoteStream;
+          }
+        });
+
+        setPeer(p);
+      });
 
     return () => {
       if (localStream) {
-        localStream.getTracks().forEach(track => track.stop());
+        localStream.getTracks().forEach((track) => track.stop());
       }
       if (peer) {
         peer.destroy();
@@ -544,11 +565,14 @@ Server setup:
 
 ```typescript
 // server/routes.ts
-import twilio from 'twilio';
+import twilio from "twilio";
 
-const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
+const client = twilio(
+  process.env.TWILIO_ACCOUNT_SID,
+  process.env.TWILIO_AUTH_TOKEN
+);
 
-app.post('/api/video-token', requireAuth, async (req, res) => {
+app.post("/api/video-token", requireAuth, async (req, res) => {
   const { roomName } = req.body;
   const userId = req.user.id;
 
@@ -560,7 +584,7 @@ app.post('/api/video-token', requireAuth, async (req, res) => {
   );
 
   const videoGrant = new twilio.jwt.AccessToken.VideoGrant({
-    room: roomName
+    room: roomName,
   });
 
   token.addGrant(videoGrant);
@@ -572,10 +596,13 @@ Frontend implementation:
 
 ```typescript
 // client/src/components/TwilioVideoCall.tsx
-import { useEffect, useRef, useState } from 'react';
-import Video from 'twilio-video';
+import { useEffect, useRef, useState } from "react";
+import Video from "twilio-video";
 
-export function TwilioVideoCall({ roomName, onDisconnect }: {
+export function TwilioVideoCall({
+  roomName,
+  onDisconnect,
+}: {
   roomName: string;
   onDisconnect: () => void;
 }) {
@@ -585,40 +612,42 @@ export function TwilioVideoCall({ roomName, onDisconnect }: {
 
   useEffect(() => {
     // Get access token
-    fetch('/api/video-token', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+    fetch("/api/video-token", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ roomName }),
     })
-    .then(res => res.json())
-    .then(({ token }) => {
-      return Video.connect(token, {
-        name: roomName,
-        audio: true,
-        video: true,
+      .then((res) => res.json())
+      .then(({ token }) => {
+        return Video.connect(token, {
+          name: roomName,
+          audio: true,
+          video: true,
+        });
+      })
+      .then((connectedRoom) => {
+        setRoom(connectedRoom);
+
+        // Attach local video
+        const localTrack = Array.from(
+          connectedRoom.localParticipant.videoTracks.values()
+        )[0];
+        if (localTrack && localVideoRef.current) {
+          localVideoRef.current.appendChild(localTrack.track.attach());
+        }
+
+        // Handle remote participants
+        connectedRoom.participants.forEach(addParticipant);
+        connectedRoom.on("participantConnected", addParticipant);
       });
-    })
-    .then((connectedRoom) => {
-      setRoom(connectedRoom);
-
-      // Attach local video
-      const localTrack = Array.from(connectedRoom.localParticipant.videoTracks.values())[0];
-      if (localTrack && localVideoRef.current) {
-        localVideoRef.current.appendChild(localTrack.track.attach());
-      }
-
-      // Handle remote participants
-      connectedRoom.participants.forEach(addParticipant);
-      connectedRoom.on('participantConnected', addParticipant);
-    });
 
     function addParticipant(participant: Video.RemoteParticipant) {
       participant.tracks.forEach(addTrack);
-      participant.on('trackSubscribed', addTrack);
+      participant.on("trackSubscribed", addTrack);
     }
 
     function addTrack(track: Video.VideoTrack | Video.AudioTrack) {
-      if (track.kind === 'video' && remoteVideoRef.current) {
+      if (track.kind === "video" && remoteVideoRef.current) {
         remoteVideoRef.current.appendChild(track.attach());
       }
     }
@@ -655,7 +684,7 @@ export default function LiveHelp() {
   const startCall = (session: LiveHelpSession) => {
     setActiveSession(session);
     setIsInCall(true);
-    
+
     // Update session status
     updateSessionMutation.mutate({
       id: session.id,
@@ -707,14 +736,7 @@ SIGNALING_SERVER_PORT=3001
 
 ## Deployment
 
-### Replit Deployment
-
-1. **Push to Repository**: Ensure your code is committed to Git
-2. **Environment Variables**: Set production environment variables in Replit
-3. **Database**: Set up PostgreSQL database if needed
-4. **Deploy**: Use Replit's deployment feature
-
-### Manual Deployment
+### Production Deployment
 
 ```bash
 # Build the application
@@ -752,16 +774,19 @@ CMD ["npm", "start"]
 ### Common Issues
 
 1. **Authentication not working**
+
    - Check SESSION_SECRET environment variable
    - Verify cookie settings in production
    - Ensure database sessions table exists
 
 2. **Database connection errors**
+
    - Verify DATABASE_URL format
    - Check database permissions
    - Fall back to in-memory storage for development
 
 3. **Build errors**
+
    - Clear node_modules and reinstall
    - Check TypeScript configuration
    - Verify all imports are correct
