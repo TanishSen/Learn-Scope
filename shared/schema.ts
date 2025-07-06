@@ -12,7 +12,7 @@ import {
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Session storage table for Replit Auth
+// Session storage table for local authentication
 export const sessions = pgTable(
   "sessions",
   {
@@ -23,10 +23,12 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table for Replit Auth
+// User storage table for local authentication
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  id: serial("id").primaryKey(),
+  username: varchar("username").unique().notNull(),
+  email: varchar("email").unique().notNull(),
+  password: varchar("password").notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -163,6 +165,36 @@ export const insertLiveHelpSessionSchema = createInsertSchema(liveHelpSessions).
   status: true,
 });
 
+// User authentication schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+  rewardPoints: true,
+  totalAnswers: true,
+  totalQuestions: true,
+  following: true,
+  followers: true,
+  isOnline: true,
+  lastSeen: true,
+});
+
+export const loginSchema = z.object({
+  username: z.string().min(3, "Username must be at least 3 characters"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const registerSchema = insertUserSchema.extend({
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
 export type InsertQuestionInput = z.infer<typeof insertQuestionSchema>;
 export type InsertAnswerInput = z.infer<typeof insertAnswerSchema>;
 export type InsertLiveHelpSessionInput = z.infer<typeof insertLiveHelpSessionSchema>;
+export type InsertUserInput = z.infer<typeof insertUserSchema>;
+export type LoginInput = z.infer<typeof loginSchema>;
+export type RegisterInput = z.infer<typeof registerSchema>;

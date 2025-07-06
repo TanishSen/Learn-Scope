@@ -19,13 +19,16 @@ import {
   type InsertLiveHelpSession,
   type InsertUserSubject,
   type InsertActivity,
+  type InsertUserInput,
 } from "@shared/schema";
 
 // Interface for storage operations
 export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+  // User operations (for local authentication)
   getUser(id: string): Promise<User | undefined>;
-  upsertUser(user: UpsertUser): Promise<User>;
+  getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: Omit<InsertUserInput, 'confirmPassword'>): Promise<User>;
   updateUserStats(userId: string, stats: { rewardPoints?: number; totalAnswers?: number; totalQuestions?: number }): Promise<void>;
   
   // Subject operations
@@ -63,7 +66,7 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User> = new Map();
+  private users: Map<number, User> = new Map();
   private subjects: Map<number, Subject> = new Map();
   private questions: Map<number, Question> = new Map();
   private answers: Map<number, Answer> = new Map();
@@ -88,38 +91,46 @@ export class MemStorage implements IStorage {
 
   // User operations
   async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+    return this.users.get(parseInt(id));
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(userData.id);
-    if (existingUser) {
-      const updatedUser = { ...existingUser, ...userData, updatedAt: new Date() };
-      this.users.set(userData.id, updatedUser);
-      return updatedUser;
-    } else {
-      const newUser: User = {
-        ...userData,
-        rewardPoints: userData.rewardPoints || 0,
-        totalAnswers: userData.totalAnswers || 0,
-        totalQuestions: userData.totalQuestions || 0,
-        following: userData.following || 0,
-        followers: userData.followers || 0,
-        isOnline: userData.isOnline || false,
-        lastSeen: userData.lastSeen || new Date(),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-      this.users.set(userData.id, newUser);
-      return newUser;
-    }
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.username === username);
+  }
+
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find(user => user.email === email);
+  }
+
+  async createUser(userData: Omit<InsertUserInput, 'confirmPassword'>): Promise<User> {
+    const newUser: User = {
+      id: this.currentUserId++,
+      username: userData.username,
+      email: userData.email,
+      password: userData.password,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      college: userData.college || null,
+      rewardPoints: 0,
+      totalAnswers: 0,
+      totalQuestions: 0,
+      following: 0,
+      followers: 0,
+      isOnline: true,
+      lastSeen: new Date(),
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    this.users.set(newUser.id, newUser);
+    return newUser;
   }
 
   async updateUserStats(userId: string, stats: { rewardPoints?: number; totalAnswers?: number; totalQuestions?: number }): Promise<void> {
-    const user = this.users.get(userId);
+    const user = this.users.get(parseInt(userId));
     if (user) {
       const updatedUser = { ...user, ...stats, updatedAt: new Date() };
-      this.users.set(userId, updatedUser);
+      this.users.set(parseInt(userId), updatedUser);
     }
   }
 
@@ -178,6 +189,7 @@ export class MemStorage implements IStorage {
     const newQuestion: Question = {
       id: this.currentId++,
       ...questionData,
+      isUrgent: questionData.isUrgent ?? false,
       isResolved: false,
       viewCount: 0,
       answersCount: 0,
@@ -223,7 +235,7 @@ export class MemStorage implements IStorage {
     // Update question answer count
     const question = this.questions.get(answerData.questionId);
     if (question) {
-      await this.updateQuestion(answerData.questionId, { answersCount: question.answersCount + 1 });
+      await this.updateQuestion(answerData.questionId, { answersCount: (question.answersCount ?? 0) + 1 });
     }
     
     // Update user stats
@@ -245,6 +257,12 @@ export class MemStorage implements IStorage {
     const newSession: LiveHelpSession = {
       id: this.currentLiveHelpSessionId++,
       ...sessionData,
+      description: sessionData.description ?? null,
+      isUrgent: sessionData.isUrgent ?? false,
+      helperId: sessionData.helperId ?? null,
+      startedAt: sessionData.startedAt ?? null,
+      endedAt: sessionData.endedAt ?? null,
+      duration: sessionData.duration ?? null,
       status: "pending",
       createdAt: new Date(),
     };
@@ -291,6 +309,7 @@ export class MemStorage implements IStorage {
     const newActivity: Activity = {
       id: this.currentActivityId++,
       ...activityData,
+      entityId: activityData.entityId ?? null,
       createdAt: new Date(),
     };
     this.activities.set(newActivity.id, newActivity);

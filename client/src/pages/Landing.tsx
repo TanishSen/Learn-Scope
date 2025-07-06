@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { GraduationCap, Users, Video, Trophy } from "lucide-react";
+import { Link } from "wouter";
 
 export default function Landing() {
   return (
@@ -15,12 +16,11 @@ export default function Landing() {
               </div>
               <span className="ml-3 text-xl font-bold text-gray-900">LearnScope</span>
             </div>
-            <Button 
-              onClick={() => window.location.href = '/api/login'}
-              className="bg-primary hover:bg-green-600"
-            >
-              Get Started
-            </Button>
+            <Link to="/auth">
+              <Button className="bg-primary hover:bg-green-600">
+                Get Started
+              </Button>
+            </Link>
           </div>
         </div>
       </nav>
@@ -35,13 +35,14 @@ export default function Landing() {
             Connect with fellow students, get instant help through live video sessions, 
             and build a collaborative learning community that helps everyone succeed.
           </p>
-          <Button 
-            size="lg" 
-            className="bg-primary hover:bg-green-600 text-lg px-8 py-4"
-            onClick={() => window.location.href = '/api/login'}
-          >
-            Start Learning Now
-          </Button>
+          <Link to="/auth">
+            <Button 
+              size="lg" 
+              className="bg-primary hover:bg-green-600 text-lg px-8 py-4"
+            >
+              Start Learning Now
+            </Button>
+          </Link>
         </div>
       </div>
 
