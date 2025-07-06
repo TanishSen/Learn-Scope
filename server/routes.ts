@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
+import { setupAuth, requireAuth } from "./auth";
 import { 
   insertQuestionSchema, 
   insertAnswerSchema, 
@@ -12,22 +12,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
   await setupAuth(app);
 
-  // Auth routes
-  app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
+  // Auth routes are now handled in auth.ts
 
   // Dashboard routes
-  app.get('/api/dashboard', isAuthenticated, async (req: any, res) => {
+  app.get('/api/dashboard', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.id?.toString();
       const dashboardData = await storage.getDashboardStats(userId);
       res.json(dashboardData);
     } catch (error) {
@@ -74,9 +64,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/questions', isAuthenticated, async (req: any, res) => {
+  app.post('/api/questions', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.id?.toString();
       const validatedData = insertQuestionSchema.parse({
         ...req.body,
         userId
@@ -122,9 +112,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/questions/:questionId/answers', isAuthenticated, async (req: any, res) => {
+  app.post('/api/questions/:questionId/answers', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.id?.toString();
       const questionId = parseInt(req.params.questionId);
       
       const validatedData = insertAnswerSchema.parse({
@@ -162,9 +152,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/live-help', isAuthenticated, async (req: any, res) => {
+  app.post('/api/live-help', requireAuth, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.id?.toString();
       const validatedData = insertLiveHelpSessionSchema.parse({
         ...req.body,
         requesterId: userId
