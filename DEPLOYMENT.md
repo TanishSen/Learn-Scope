@@ -1,4 +1,28 @@
-# LearnScope Deployment Guide
+# ## Render.com Deployment
+
+### Step 1: Environment Variables Setup
+
+In your Render service dashboard, set these environment variables:
+
+```bash
+NODE_ENV=production
+SESSION_SECRET=8ead686d8dc5498a1a82840a68cd024e03f4dd2a3abb53ccca4140077a237012
+```
+
+### Step 2: Build & Start Commands
+
+- **Build Command**: `npm install && npm run build`
+- **Start Command**: `npm start`
+- **Publish Directory**: Leave empty (not needed for this setup)
+
+### Step 3: Dependencies Fix Applied
+
+✅ **Fixed**: Moved essential build dependencies to `dependencies`:
+- `@vitejs/plugin-react` - Required for Vite React builds
+- `esbuild` - Required for server bundling
+- `vite` - Required for frontend builds
+
+This ensures all build tools are available during deployment.yment Guide
 
 ## Render.com Deployment
 
