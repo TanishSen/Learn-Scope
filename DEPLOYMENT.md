@@ -13,8 +13,9 @@ SESSION_SECRET=your-super-secure-random-session-secret-for-production-use-at-lea
 
 ### Step 2: Build & Start Commands
 
-- **Build Command**: `npm run build`
+- **Build Command**: `npm install && npm run build`
 - **Start Command**: `npm start`
+- **Publish Directory**: Leave empty (not needed for this setup)
 
 ### Step 3: Auto-Deploy from Git
 
