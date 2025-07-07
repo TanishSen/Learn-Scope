@@ -21,6 +21,9 @@ SESSION_SECRET=8ead686d8dc5498a1a82840a68cd024e03f4dd2a3abb53ccca4140077a237012
 - `@vitejs/plugin-react` - Required for Vite React builds
 - `esbuild` - Required for server bundling
 - `vite` - Required for frontend builds
+- `autoprefixer` - Required for PostCSS/Tailwind CSS
+- `postcss` - Required for CSS processing
+- `tailwindcss` - Required for styling
 
 This ensures all build tools are available during deployment.yment Guide
 
