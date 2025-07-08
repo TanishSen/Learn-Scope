@@ -18,12 +18,15 @@ SESSION_SECRET=8ead686d8dc5498a1a82840a68cd024e03f4dd2a3abb53ccca4140077a237012
 ### Step 3: Dependencies Fix Applied
 
 ✅ **Fixed**: Moved essential build dependencies to `dependencies`:
+
 - `@vitejs/plugin-react` - Required for Vite React builds
 - `esbuild` - Required for server bundling
 - `vite` - Required for frontend builds
 - `autoprefixer` - Required for PostCSS/Tailwind CSS
 - `postcss` - Required for CSS processing
 - `tailwindcss` - Required for styling
+- `@tailwindcss/typography` - Required for Tailwind typography plugin
+- `@tailwindcss/vite` - Required for Tailwind Vite integration
 
 This ensures all build tools are available during deployment.yment Guide
 
