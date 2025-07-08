@@ -9,8 +9,8 @@ import {
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Health check endpoint for Render
-  app.get("/", (req, res) => {
+  // Health check endpoint for Render (moved from root to avoid conflict with frontend)
+  app.get("/api/health", (req, res) => {
     res.status(200).json({
       status: "healthy",
       service: "LearnScope",
