@@ -1,7 +1,5 @@
 # 🎓 LearnScope - Peer-to-Peer Learning Platform
 
-![LearnScope Banner](https://via.placeholder.com/800x200/4F46E5/FFFFFF?text=LearnScope+-+Learn+Together)
-
 A modern, full-stack web application that connects students for collaborative learning through Q&A discussions and live help sessions.
 
 ## 🌟 Live Demo
@@ -296,11 +294,4 @@ If LearnScope helped you or you find it useful, please consider giving it a star
 
 ---
 
-**Built with ❤️ for the learning community**
-
-*Empowering students to learn together, grow together, and succeed together.*
-
-[![GitHub stars](https://img.shields.io/github/stars/your-username/LearnScope?style=social)](https://github.com/your-username/LearnScope/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/your-username/LearnScope?style=social)](https://github.com/your-username/LearnScope/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/your-username/LearnScope)](https://github.com/your-username/LearnScope/issues)
-[![GitHub license](https://img.shields.io/github/license/your-username/LearnScope)](https://github.com/your-username/LearnScope/blob/main/LICENSE)
+**Built with ❤️ **
