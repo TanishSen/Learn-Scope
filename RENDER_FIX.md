@@ -3,6 +3,7 @@
 ## Issue: "Publish directory dist does not exist!"
 
 ### ❌ Problem:
+
 You're creating a **Static Site** instead of a **Web Service** on Render.
 
 ### ✅ Solution:
@@ -15,8 +16,11 @@ You're creating a **Static Site** instead of a **Web Service** on Render.
 ## Step 2: Correct Render Settings
 
 ### **Service Type:** Web Service ⭐
+
 ### **Build Command:** `npm install && npm run build`
+
 ### **Start Command:** `npm start`
+
 ### **Publish Directory:** Leave empty ❌ (delete any value here)
 
 ## Step 3: Environment Variables
@@ -29,11 +33,13 @@ SESSION_SECRET=8ead686d8dc5498a1a82840a68cd024e03f4dd2a3abb53ccca4140077a237012
 ## Why This Fixes It:
 
 ### **Static Site** (❌ Wrong):
+
 - Expects static files in a publish directory
 - Doesn't run a server
 - Only serves HTML/CSS/JS files
 
 ### **Web Service** (✅ Correct):
+
 - Runs your Node.js server
 - Server serves both API and frontend
 - No publish directory needed

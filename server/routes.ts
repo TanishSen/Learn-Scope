@@ -2,20 +2,29 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth, requireAuth } from "./auth";
-import { 
-  insertQuestionSchema, 
-  insertAnswerSchema, 
-  insertLiveHelpSessionSchema 
+import {
+  insertQuestionSchema,
+  insertAnswerSchema,
+  insertLiveHelpSessionSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Health check endpoint for Render
+  app.get("/", (req, res) => {
+    res.status(200).json({
+      status: "healthy",
+      service: "LearnScope",
+      timestamp: new Date().toISOString(),
+    });
+  });
+
   // Auth middleware
   await setupAuth(app);
 
   // Auth routes are now handled in auth.ts
 
   // Dashboard routes
-  app.get('/api/dashboard', requireAuth, async (req: any, res) => {
+  app.get("/api/dashboard", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id?.toString();
       const dashboardData = await storage.getDashboardStats(userId);
@@ -27,7 +36,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Subject routes
-  app.get('/api/subjects', async (req, res) => {
+  app.get("/api/subjects", async (req, res) => {
     try {
       const subjects = await storage.getSubjects();
       res.json(subjects);
@@ -38,7 +47,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Question routes
-  app.get('/api/questions', async (req, res) => {
+  app.get("/api/questions", async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 20;
       const offset = parseInt(req.query.offset as string) || 0;
@@ -50,7 +59,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/questions/:id', async (req, res) => {
+  app.get("/api/questions/:id", async (req, res) => {
     try {
       const questionId = parseInt(req.params.id);
       const question = await storage.getQuestionById(questionId);
@@ -64,16 +73,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/questions', requireAuth, async (req: any, res) => {
+  app.post("/api/questions", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id?.toString();
       const validatedData = insertQuestionSchema.parse({
         ...req.body,
-        userId
+        userId,
       });
-      
+
       const question = await storage.createQuestion(validatedData);
-      
+
       // Create activity
       await storage.createActivity({
         userId,
@@ -81,7 +90,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         entityId: question.id,
         description: `Asked a question: ${question.title}`,
       });
-      
+
       res.status(201).json(question);
     } catch (error) {
       console.error("Error creating question:", error);
@@ -89,7 +98,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/questions/subject/:subjectId', async (req, res) => {
+  app.get("/api/questions/subject/:subjectId", async (req, res) => {
     try {
       const subjectId = parseInt(req.params.subjectId);
       const questions = await storage.getQuestionsBySubject(subjectId);
@@ -101,7 +110,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Answer routes
-  app.get('/api/questions/:questionId/answers', async (req, res) => {
+  app.get("/api/questions/:questionId/answers", async (req, res) => {
     try {
       const questionId = parseInt(req.params.questionId);
       const answers = await storage.getAnswersByQuestion(questionId);
@@ -112,36 +121,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/questions/:questionId/answers', requireAuth, async (req: any, res) => {
-    try {
-      const userId = req.user?.id?.toString();
-      const questionId = parseInt(req.params.questionId);
-      
-      const validatedData = insertAnswerSchema.parse({
-        ...req.body,
-        userId,
-        questionId
-      });
-      
-      const answer = await storage.createAnswer(validatedData);
-      
-      // Create activity
-      await storage.createActivity({
-        userId,
-        type: "answer_given",
-        entityId: answer.id,
-        description: `Answered a question`,
-      });
-      
-      res.status(201).json(answer);
-    } catch (error) {
-      console.error("Error creating answer:", error);
-      res.status(500).json({ message: "Failed to create answer" });
+  app.post(
+    "/api/questions/:questionId/answers",
+    requireAuth,
+    async (req: any, res) => {
+      try {
+        const userId = req.user?.id?.toString();
+        const questionId = parseInt(req.params.questionId);
+
+        const validatedData = insertAnswerSchema.parse({
+          ...req.body,
+          userId,
+          questionId,
+        });
+
+        const answer = await storage.createAnswer(validatedData);
+
+        // Create activity
+        await storage.createActivity({
+          userId,
+          type: "answer_given",
+          entityId: answer.id,
+          description: `Answered a question`,
+        });
+
+        res.status(201).json(answer);
+      } catch (error) {
+        console.error("Error creating answer:", error);
+        res.status(500).json({ message: "Failed to create answer" });
+      }
     }
-  });
+  );
 
   // Live help routes
-  app.get('/api/live-help', async (req, res) => {
+  app.get("/api/live-help", async (req, res) => {
     try {
       const status = req.query.status as string;
       const sessions = await storage.getLiveHelpSessions(status);
@@ -152,14 +165,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.post('/api/live-help', requireAuth, async (req: any, res) => {
+  app.post("/api/live-help", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user?.id?.toString();
       const validatedData = insertLiveHelpSessionSchema.parse({
         ...req.body,
-        requesterId: userId
+        requesterId: userId,
       });
-      
+
       const session = await storage.createLiveHelpSession(validatedData);
       res.status(201).json(session);
     } catch (error) {
@@ -169,7 +182,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // User routes
-  app.get('/api/users/:userId/subjects', async (req, res) => {
+  app.get("/api/users/:userId/subjects", async (req, res) => {
     try {
       const userId = req.params.userId;
       const userSubjects = await storage.getUserSubjects(userId);
@@ -180,7 +193,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  app.get('/api/users/:userId/questions', async (req, res) => {
+  app.get("/api/users/:userId/questions", async (req, res) => {
     try {
       const userId = req.params.userId;
       const questions = await storage.getQuestionsByUser(userId);
@@ -192,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Activity routes
-  app.get('/api/activities', async (req, res) => {
+  app.get("/api/activities", async (req, res) => {
     try {
       const limit = parseInt(req.query.limit as string) || 10;
       const activities = await storage.getRecentActivities(limit);
